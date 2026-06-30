@@ -36,7 +36,7 @@
     />
     <meta name="twitter:image" content="https://cagoooo.github.io/Poke/assets/og-pokemon-math.png?v=20260630-1" />
     <link rel="preconnect" href="https://pokeapi.co" />
-    <link rel="stylesheet" href="styles.css?v=2026.06.30-1" />
+    <link rel="stylesheet" href="styles.css?v=2026.06.30-2" />
   </head>
   <body>
     <main class="app-shell">
@@ -45,6 +45,14 @@
           <p class="eyebrow">PokéAPI Math Battle</p>
           <h1>寶可夢數學道館</h1>
           <button id="classModeBtn" class="ghost-btn compact-btn" type="button">課堂模式</button>
+        </div>
+        <div class="audio-controls" aria-label="音訊控制">
+          <button id="soundToggleBtn" class="ghost-btn compact-btn" type="button">音效：開</button>
+          <button id="bgmToggleBtn" class="ghost-btn compact-btn" type="button">BGM：關</button>
+          <label>
+            <span>音量</span>
+            <input id="volumeSlider" type="range" min="0" max="100" value="45" />
+          </label>
         </div>
         <div class="scoreboard">
           <div>
@@ -203,11 +211,11 @@
       </section>
     </main>
 
-    <script src="script.js?v=2026.06.30-1"></script>
+    <script src="script.js?v=2026.06.30-2"></script>
     <script>
       (function () {
         if (!("serviceWorker" in navigator)) return;
-        var APP_VERSION = "2026.06.30-1";
+        var APP_VERSION = "2026.06.30-2";
         var reloaded = false;
 
         function showUpdateNotice(waitingWorker) {

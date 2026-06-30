@@ -1,10 +1,10 @@
-const BUILD_VERSION = "2026.06.30-1";
+const BUILD_VERSION = "2026.06.30-2";
 const CACHE_NAME = "pokemon-math-gym-" + BUILD_VERSION;
 const PRECACHE = [
   "./",
   "./index.html",
-  "./styles.css?v=2026.06.30-1",
-  "./script.js?v=2026.06.30-1",
+  "./styles.css?v=2026.06.30-2",
+  "./script.js?v=2026.06.30-2",
   "./favicon.ico",
   "./favicon.svg",
   "./apple-touch-icon.png",
@@ -12,6 +12,14 @@ const PRECACHE = [
   "./assets/icon-192.png",
   "./assets/icon-512.png",
   "./assets/og-pokemon-math.png",
+  "./assets/audio/sfx/attack.mp3",
+  "./assets/audio/sfx/correct.mp3",
+  "./assets/audio/sfx/wrong.mp3",
+  "./assets/audio/sfx/guard.mp3",
+  "./assets/audio/sfx/perfect.mp3",
+  "./assets/audio/sfx/win.mp3",
+  "./assets/audio/sfx/lose.mp3",
+  "./assets/audio/bgm/battle-loop.mp3",
   "./version.json"
 ];
 

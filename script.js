@@ -15,6 +15,25 @@ const POKEMON_CHOICES = [
 
 const BOSS_POOL = ["geodude", "onix", "gengar", "lapras", "dragonite", "mewtwo"];
 const API_ROOT = "https://pokeapi.co/api/v2/pokemon/";
+const AUDIO_ROOT = "assets/audio/";
+const SFX_FILES = {
+  attack: "sfx/attack.mp3",
+  correct: "sfx/correct.mp3",
+  wrong: "sfx/wrong.mp3",
+  guard: "sfx/guard.mp3",
+  perfect: "sfx/perfect.mp3",
+  win: "sfx/win.mp3",
+  lose: "sfx/lose.mp3",
+};
+const SFX_VOLUMES = {
+  attack: 0.58,
+  correct: 0.5,
+  wrong: 0.42,
+  guard: 0.52,
+  perfect: 0.58,
+  win: 0.52,
+  lose: 0.48,
+};
 const FALLBACK_POKEMON = {
   pikachu: { id: 25, types: ["electric"], hp: 35, attack: 55, defense: 40, color: "#f6c344" },
   bulbasaur: { id: 1, types: ["grass", "poison"], hp: 45, attack: 49, defense: 49, color: "#63c98d" },
@@ -110,6 +129,10 @@ const state = {
   defenseTimerId: 0,
   defenseTimeLimit: 8,
   defenseRemaining: 8,
+  audioUnlocked: false,
+  soundOn: true,
+  bgmOn: false,
+  masterVolume: 0.45,
 };
 
 const elements = {
@@ -153,6 +176,9 @@ const elements = {
   movePanel: document.querySelector("#movePanel"),
   moveCards: document.querySelectorAll(".move-card"),
   classModeBtn: document.querySelector("#classModeBtn"),
+  soundToggleBtn: document.querySelector("#soundToggleBtn"),
+  bgmToggleBtn: document.querySelector("#bgmToggleBtn"),
+  volumeSlider: document.querySelector("#volumeSlider"),
   pauseOverlay: document.querySelector("#pauseOverlay"),
   summaryCards: document.querySelector("#summaryCards"),
   effectsLayer: document.querySelector("#effectsLayer"),
@@ -161,6 +187,9 @@ const elements = {
 };
 
 const pokemonCache = new Map();
+const sfxPool = {};
+let bgmAudio = null;
+let bgmFadeId = 0;
 
 async function fetchPokemon(nameOrId) {
   if (pokemonCache.has(nameOrId)) return pokemonCache.get(nameOrId);
@@ -279,6 +308,7 @@ function syncQuestionSettings() {
 
 async function startBattle(player) {
   if (state.phase !== "select") return;
+  unlockAudio();
   syncQuestionSettings();
   state.phase = "loading";
   setSelectionEnabled(false);
@@ -589,9 +619,11 @@ function resolveAttack(guess) {
     if (damage > 0) state.bossHp = Math.max(0, state.bossHp - damage);
     playAttack(elements.playerSprite, "attack-forward");
     if (damage > 0) {
+      playSound("attack");
       showDamage(elements.bossPanel, damage, "miss");
       flashPanel(elements.bossPanel, "hit-flash");
     }
+    playSound("correct");
     elements.battleMessage.textContent = outcome.message;
     if (state.bossHp <= 0) {
       winStage();
@@ -602,6 +634,7 @@ function resolveAttack(guess) {
     const penalty = Math.round(6 + state.stage * 2.2);
     state.playerHp = Math.max(0, state.playerHp - penalty);
     recordMistake(question, guess, "攻擊題");
+    playSound("wrong");
     showDamage(elements.playerPanel, penalty, "miss");
     flashPanel(elements.playerPanel, "hit-flash");
     elements.battleMessage.textContent = `答案是 ${question.answer}。攻擊失手，受到 ${penalty} 點反震傷害。`;
@@ -672,6 +705,7 @@ function resolveDefense(guess) {
     const counter = Math.round(12 + state.player.attack * 0.16 + state.stage * 2);
     state.correct += 1;
     state.bossHp = Math.max(0, state.bossHp - counter);
+    playSound("perfect");
     showDamage(elements.playerPanel, 0, "guard");
     showDamage(elements.bossPanel, counter, "miss");
     flashPanel(elements.playerPanel, "guard-flash");
@@ -679,12 +713,14 @@ function resolveDefense(guess) {
     elements.battleMessage.textContent = `完美閃避！沒有受到傷害，並反擊 ${counter} 點。`;
   } else if (guess === question.answer) {
     state.correct += 1;
+    playSound("guard");
     showDamage(elements.playerPanel, damage, "guard");
     flashPanel(elements.playerPanel, "guard-flash");
     elements.battleMessage.textContent = `防禦成功！只受到 ${damage} 點傷害。`;
   } else {
     state.combo = 0;
     recordMistake(question, guess, "防禦題");
+    playSound("wrong");
     showDamage(elements.playerPanel, damage, "miss");
     flashPanel(elements.playerPanel, "hit-flash");
     elements.battleMessage.textContent = `防禦失敗，答案是 ${question.answer}。受到 ${damage} 點傷害。`;
@@ -822,6 +858,8 @@ function winStage() {
   state.result = "win";
   stopBattleLoop();
   stopDefenseTimer();
+  playSound("win");
+  stopBgm();
   elements.pauseBtn.classList.add("hidden");
   elements.questionForm.classList.add("hidden");
   elements.movePanel.classList.add("hidden");
@@ -839,6 +877,8 @@ function loseGame() {
   state.result = "lose";
   stopBattleLoop();
   stopDefenseTimer();
+  playSound("lose");
+  stopBgm();
   document.body.classList.remove("paused");
   elements.pauseOverlay.classList.add("hidden");
   elements.pauseBtn.classList.add("hidden");
@@ -960,6 +1000,7 @@ async function goNextStage() {
     updateHud();
     elements.questionForm.classList.remove("hidden");
     setQuestionWaiting();
+    if (state.bgmOn) startBgm();
     startBattleLoop();
   } catch (error) {
     state.phase = "stage-clear";
@@ -972,6 +1013,7 @@ async function goNextStage() {
 function restart() {
   stopBattleLoop();
   stopDefenseTimer();
+  if (state.bgmOn) stopBgm();
   document.body.classList.remove("paused");
   elements.pauseOverlay.classList.add("hidden");
   elements.battleScreen.classList.remove("active");
@@ -1005,6 +1047,107 @@ function setMove(move) {
   elements.moveCards.forEach((card) => {
     card.classList.toggle("active", card.dataset.move === move);
   });
+}
+
+function unlockAudio() {
+  if (state.audioUnlocked) return;
+  state.audioUnlocked = true;
+  Object.keys(SFX_FILES).forEach((kind) => {
+    getSfxAudio(kind);
+  });
+  if (state.bgmOn) startBgm();
+}
+
+function getSfxAudio(kind) {
+  if (!sfxPool[kind]) sfxPool[kind] = [];
+  const pool = sfxPool[kind];
+  const idle = pool.find((audio) => audio.paused || audio.ended);
+  if (idle) {
+    idle.currentTime = 0;
+    return idle;
+  }
+  if (pool.length < 3) {
+    const audio = new Audio(AUDIO_ROOT + SFX_FILES[kind]);
+    audio.preload = "auto";
+    pool.push(audio);
+    return audio;
+  }
+  pool[0].currentTime = 0;
+  return pool[0];
+}
+
+function playSound(kind) {
+  if (!state.soundOn || !state.audioUnlocked || !SFX_FILES[kind]) return;
+  const audio = getSfxAudio(kind);
+  audio.volume = clamp((SFX_VOLUMES[kind] || 0.5) * state.masterVolume, 0, 1);
+  audio.play().catch(() => undefined);
+}
+
+function ensureBgm() {
+  if (!bgmAudio) {
+    bgmAudio = new Audio(AUDIO_ROOT + "bgm/battle-loop.mp3");
+    bgmAudio.loop = true;
+    bgmAudio.preload = "auto";
+  }
+  return bgmAudio;
+}
+
+function startBgm() {
+  if (!state.audioUnlocked || !state.bgmOn) return;
+  const audio = ensureBgm();
+  window.clearInterval(bgmFadeId);
+  audio.volume = 0;
+  audio.play().then(() => {
+    let step = 0;
+    const target = 0.28 * state.masterVolume;
+    bgmFadeId = window.setInterval(() => {
+      step += 1;
+      audio.volume = Math.min(target, (step / 18) * target);
+      if (step >= 18) window.clearInterval(bgmFadeId);
+    }, 80);
+  }).catch(() => undefined);
+}
+
+function stopBgm() {
+  if (!bgmAudio) return;
+  window.clearInterval(bgmFadeId);
+  const audio = bgmAudio;
+  let step = 12;
+  const start = audio.volume;
+  bgmFadeId = window.setInterval(() => {
+    step -= 1;
+    audio.volume = Math.max(0, start * (step / 12));
+    if (step <= 0) {
+      window.clearInterval(bgmFadeId);
+      audio.pause();
+    }
+  }, 60);
+}
+
+function updateAudioUi() {
+  elements.soundToggleBtn.textContent = state.soundOn ? "音效：開" : "音效：關";
+  elements.bgmToggleBtn.textContent = state.bgmOn ? "BGM：開" : "BGM：關";
+  elements.volumeSlider.value = Math.round(state.masterVolume * 100);
+  if (bgmAudio && state.bgmOn) bgmAudio.volume = 0.28 * state.masterVolume;
+}
+
+function toggleSound() {
+  unlockAudio();
+  state.soundOn = !state.soundOn;
+  updateAudioUi();
+}
+
+function toggleBgm() {
+  unlockAudio();
+  state.bgmOn = !state.bgmOn;
+  if (state.bgmOn) startBgm();
+  else stopBgm();
+  updateAudioUi();
+}
+
+function changeVolume() {
+  state.masterVolume = clamp(Number(elements.volumeSlider.value) / 100, 0, 1);
+  updateAudioUi();
 }
 
 function toggleClassMode() {
@@ -1048,6 +1191,10 @@ elements.nextStageBtn.addEventListener("click", goNextStage);
 elements.restartBtn.addEventListener("click", restart);
 elements.retryMistakesBtn.addEventListener("click", startRetryMistakes);
 elements.classModeBtn.addEventListener("click", toggleClassMode);
+elements.soundToggleBtn.addEventListener("click", toggleSound);
+elements.bgmToggleBtn.addEventListener("click", toggleBgm);
+elements.volumeSlider.addEventListener("input", changeVolume);
 
+updateAudioUi();
 updateHud();
 loadChoices();

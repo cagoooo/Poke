@@ -55,6 +55,26 @@ select {
   padding: 0 12px;
 }
 
+.audio-controls {
+  display: grid;
+  grid-template-columns: auto auto minmax(120px, 180px);
+  gap: 8px;
+  align-items: end;
+}
+
+.audio-controls label {
+  display: grid;
+  gap: 4px;
+  color: var(--muted);
+  font-size: 0.78rem;
+  font-weight: 800;
+}
+
+.audio-controls input[type="range"] {
+  height: 36px;
+  padding: 0;
+}
+
 .eyebrow {
   margin: 0 0 6px;
   color: var(--blue);
@@ -764,6 +784,14 @@ input:disabled {
     grid-template-columns: 1fr;
     flex-direction: column;
     align-items: stretch;
+  }
+
+  .audio-controls {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .audio-controls label {
+    grid-column: 1 / -1;
   }
 
   .scoreboard {
