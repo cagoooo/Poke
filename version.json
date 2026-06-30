@@ -1,0 +1,4 @@
+{
+  "version": "2026.06.30-1",
+  "notes": "加入 Service Worker 更新通知機制"
+}
