@@ -1,0 +1,177 @@
+<!doctype html>
+<html lang="zh-Hant">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>寶可夢數學道館</title>
+    <link rel="preconnect" href="https://pokeapi.co" />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <main class="app-shell">
+      <section class="topbar" aria-label="遊戲狀態">
+        <div>
+          <p class="eyebrow">PokéAPI Math Battle</p>
+          <h1>寶可夢數學道館</h1>
+          <button id="classModeBtn" class="ghost-btn compact-btn" type="button">課堂模式</button>
+        </div>
+        <div class="scoreboard">
+          <div>
+            <span>連擊</span>
+            <strong id="comboCount">0</strong>
+          </div>
+          <div>
+            <span>答對</span>
+            <strong id="correctCount">0</strong>
+          </div>
+          <div>
+            <span>關卡</span>
+            <strong id="stageCount">1</strong>
+          </div>
+          <div>
+            <span>難度</span>
+            <strong id="difficultyText">中</strong>
+          </div>
+        </div>
+      </section>
+
+      <section id="selectScreen" class="screen active" aria-labelledby="selectTitle">
+        <div class="select-copy">
+          <p class="eyebrow">選擇夥伴</p>
+          <h2 id="selectTitle">挑一隻寶可夢，準備用數學破關</h2>
+          <p>每答對一題加減乘除，你的寶可夢就會攻擊關主。答錯會被反擊，連擊越高傷害越漂亮。</p>
+        </div>
+        <div class="difficulty-panel" aria-label="難度選擇">
+          <button class="difficulty-card" type="button" data-difficulty="low">
+            <strong>低年級</strong>
+            <span>10 到 30 以內，加減為主</span>
+          </button>
+          <button class="difficulty-card active" type="button" data-difficulty="mid">
+            <strong>中年級</strong>
+            <span>加減乘混合，偶爾整除</span>
+          </button>
+          <button class="difficulty-card" type="button" data-difficulty="high">
+            <strong>高年級</strong>
+            <span>較大數字，乘除更常出現</span>
+          </button>
+        </div>
+        <div class="settings-panel" aria-label="題目設定">
+          <div class="setting-group">
+            <label for="operationSelect">題型</label>
+            <select id="operationSelect">
+              <option value="mixed">混合題</option>
+              <option value="add">只練加法</option>
+              <option value="subtract">只練減法</option>
+              <option value="multiply">只練乘法</option>
+              <option value="divide">只練除法</option>
+            </select>
+          </div>
+          <div class="setting-group">
+            <label for="maxNumberInput">最大數字</label>
+            <input id="maxNumberInput" type="number" min="10" max="200" value="60" />
+          </div>
+          <label class="toggle-setting">
+            <input id="allowCarryInput" type="checkbox" checked />
+            <span>允許進位 / 退位</span>
+          </label>
+        </div>
+        <div id="pokemonGrid" class="pokemon-grid" aria-live="polite"></div>
+      </section>
+
+      <section id="battleScreen" class="screen battle-screen" aria-label="道館對戰">
+        <div class="arena">
+          <article class="fighter player-panel">
+            <div class="fighter-meta">
+              <span>你的夥伴</span>
+              <strong id="playerName">-</strong>
+            </div>
+            <div class="hp-wrap">
+              <div class="hp-label"><span>HP</span><span id="playerHpText">100 / 100</span></div>
+              <div class="hp-track"><div id="playerHpBar" class="hp-bar player-hp"></div></div>
+            </div>
+            <div class="atg-wrap">
+              <div class="hp-label"><span>ATG</span><span id="playerAtgText">等待中</span></div>
+              <div class="atg-track"><div id="playerAtgBar" class="atg-bar player-atg"></div></div>
+            </div>
+            <img id="playerSprite" class="sprite player-sprite" alt="" />
+          </article>
+
+          <div class="battle-center">
+            <div id="battleMessage" class="battle-message">讀取對戰資料中...</div>
+            <button id="pauseBtn" class="ghost-btn hidden" type="button">暫停</button>
+            <button id="nextStageBtn" class="primary-btn hidden" type="button">挑戰下一位關主</button>
+            <button id="restartBtn" class="ghost-btn hidden" type="button">重新選擇寶可夢</button>
+          </div>
+
+          <article class="fighter boss-panel">
+            <div class="fighter-meta">
+              <span>道館關主</span>
+              <strong id="bossName">-</strong>
+            </div>
+            <div class="hp-wrap">
+              <div class="hp-label"><span>HP</span><span id="bossHpText">120 / 120</span></div>
+              <div class="hp-track"><div id="bossHpBar" class="hp-bar boss-hp"></div></div>
+            </div>
+            <div class="atg-wrap">
+              <div class="hp-label"><span>ATG</span><span id="bossAtgText">蓄力中</span></div>
+              <div class="atg-track"><div id="bossAtgBar" class="atg-bar boss-atg"></div></div>
+            </div>
+            <img id="bossSprite" class="sprite boss-sprite" alt="" />
+          </article>
+        </div>
+
+        <form id="questionForm" class="question-panel hidden" autocomplete="off">
+          <div>
+            <p class="eyebrow" id="commandState">等待 ATG 蓄滿</p>
+            <label id="questionText" for="answerInput">準備題目中...</label>
+            <div id="defenseTimer" class="defense-timer hidden">
+              <span>防禦倒數</span>
+              <strong id="defenseTimerText">8.0</strong>
+            </div>
+          </div>
+          <div class="answer-row">
+            <input id="answerInput" type="number" inputmode="numeric" placeholder="答案" required />
+            <button id="attackBtn" class="primary-btn" type="submit">攻擊</button>
+          </div>
+        </form>
+
+        <section id="movePanel" class="move-panel hidden" aria-label="招式選擇">
+          <button class="move-card active" type="button" data-move="quick">
+            <strong>快速攻擊</strong>
+            <span>穩定傷害，ATG 回復較快</span>
+          </button>
+          <button class="move-card" type="button" data-move="heavy">
+            <strong>重擊</strong>
+            <span>高傷害，但下次蓄力較慢</span>
+          </button>
+          <button class="move-card" type="button" data-move="heal">
+            <strong>補血</strong>
+            <span>答對恢復 HP</span>
+          </button>
+          <button class="move-card" type="button" data-move="charge">
+            <strong>蓄力</strong>
+            <span>下次攻擊變強</span>
+          </button>
+          <button class="move-card" type="button" data-move="guard">
+            <strong>防禦姿態</strong>
+            <span>答對後降低下一次傷害</span>
+          </button>
+        </section>
+
+        <section id="reviewPanel" class="review-panel hidden" aria-labelledby="reviewTitle">
+          <div id="summaryCards" class="summary-cards" aria-label="戰鬥結算"></div>
+          <div>
+            <p class="eyebrow">錯題回顧</p>
+            <h2 id="reviewTitle">這次戰鬥的練習紀錄</h2>
+          </div>
+          <button id="retryMistakesBtn" class="primary-btn hidden" type="button">重練錯題</button>
+          <div id="reviewList" class="review-list"></div>
+        </section>
+        <div id="effectsLayer" class="effects-layer" aria-hidden="true"></div>
+        <div id="pauseOverlay" class="pause-overlay hidden" aria-hidden="true">已暫停</div>
+      </section>
+    </main>
+
+    <script src="script.js"></script>
+  </body>
+</html>
