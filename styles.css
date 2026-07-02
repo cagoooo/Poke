@@ -480,16 +480,22 @@ h2 {
   height: 230px;
   object-fit: contain;
   transform-origin: 50% 88%;
-  animation: idleFloat 2.6s ease-in-out infinite;
+  --charge: 0;
+  animation-name: idleFloat;
+  animation-timing-function: ease-in-out;
+  animation-iteration-count: infinite;
+  animation-duration: calc(2.6s - (var(--charge, 0) * 1.6s));
 }
 
 .player-sprite {
   left: 8%;
+  filter: drop-shadow(0 0 calc(var(--charge, 0) * 12px) rgba(47, 111, 237, calc(var(--charge, 0) * 0.65)));
 }
 
 .boss-sprite {
   right: 8%;
   animation-delay: -1.3s;
+  filter: drop-shadow(0 0 calc(var(--charge, 0) * 12px) rgba(227, 79, 79, calc(var(--charge, 0) * 0.65)));
 }
 
 @keyframes idleFloat {

@@ -299,47 +299,73 @@ function createCreatureSprite(creature) {
   const bodyColor = creature.color;
   const shadeDark = shadeColor(bodyColor, -20);
 
-  let rects = "";
-  const pixel = (row, c, color) => {
-    const y = row * cell;
-    if (c === 0) {
-      rects += `<rect x="${cx * cell}" y="${y}" width="${cell}" height="${cell}" fill="${color}"/>`;
-    } else {
-      rects += `<rect x="${(cx + c) * cell}" y="${y}" width="${cell}" height="${cell}" fill="${color}"/>`;
-      rects += `<rect x="${(cx - c) * cell}" y="${y}" width="${cell}" height="${cell}" fill="${color}"/>`;
-    }
-  };
+  const rectsFor = (cells) =>
+    cells
+      .map(({ row, c, color }) => {
+        const y = row * cell;
+        if (c === 0) {
+          return `<rect x="${cx * cell}" y="${y}" width="${cell}" height="${cell}" fill="${color}"/>`;
+        }
+        return (
+          `<rect x="${(cx + c) * cell}" y="${y}" width="${cell}" height="${cell}" fill="${color}"/>` +
+          `<rect x="${(cx - c) * cell}" y="${y}" width="${cell}" height="${cell}" fill="${color}"/>`
+        );
+      })
+      .join("");
 
+  const wingCells = [];
   const wing = SIDE_WINGS[category];
   if (wing) {
     const wingColor = wing.color ?? shadeColor(bodyColor, wing.shade);
-    wing.cells.forEach(([row, c]) => pixel(row + bodyRowOffset, c, wingColor));
+    wing.cells.forEach(([row, c]) => wingCells.push({ row: row + bodyRowOffset, c, color: wingColor }));
   }
 
+  const bodyCells = [];
   BODY_ROWS.forEach((cs, row) => {
     const color = row >= 6 ? shadeDark : bodyColor;
-    cs.forEach((c) => pixel(row + bodyRowOffset, c, color));
+    cs.forEach((c) => bodyCells.push({ row: row + bodyRowOffset, c, color }));
   });
 
+  const accessoryCells = [];
   if (category === "flame") {
-    pixel(0, 0, "#ffce54");
-    pixel(1, 0, "#ff8a3d");
-    pixel(1, 1, "#ff8a3d");
+    accessoryCells.push({ row: 0, c: 0, color: "#ffce54" }, { row: 1, c: 0, color: "#ff8a3d" }, { row: 1, c: 1, color: "#ff8a3d" });
   } else {
     const accessory = HEAD_ACCESSORIES[category];
     if (accessory) {
       const color = accessory.color ?? shadeColor(bodyColor, accessory.shade);
-      accessory.cells.forEach(([row, c]) => pixel(row, c, color));
+      accessory.cells.forEach(([row, c]) => accessoryCells.push({ row, c, color }));
     }
   }
 
-  pixel(3 + bodyRowOffset, 2, "#18212f");
-  pixel(5 + bodyRowOffset, 0, shadeDark);
+  const eyeCells = [{ row: 3 + bodyRowOffset, c: 2, color: "#18212f" }];
+  const mouthCells = [{ row: 5 + bodyRowOffset, c: 0, color: shadeDark }];
+  const pivotX = cx * cell;
+  const pivotY = bodyRowOffset * cell;
+
+  const wingGroup = wingCells.length
+    ? `<g style="transform-box:fill-box;transform-origin:center;">${rectsFor(wingCells)}<animateTransform attributeName="transform" type="scale" values="1;1.14;0.96;1" keyTimes="0;0.4;0.7;1" dur="1.1s" repeatCount="indefinite"/></g>`
+    : "";
+
+  const bodyGroup = `<g style="transform-box:fill-box;transform-origin:50% 100%;">${rectsFor(bodyCells)}<animateTransform attributeName="transform" type="scale" values="1 1;1.015 1.03;1 1" dur="2.6s" repeatCount="indefinite"/></g>`;
+
+  let accessoryGroup = "";
+  if (accessoryCells.length) {
+    if (category === "flame") {
+      accessoryGroup = `<g style="transform-box:fill-box;transform-origin:50% 100%;">${rectsFor(accessoryCells)}<animateTransform attributeName="transform" type="scale" values="1;1.2;0.9;1.1;1" keyTimes="0;0.3;0.55;0.8;1" dur="0.6s" repeatCount="indefinite"/></g>`;
+    } else {
+      accessoryGroup = `<g>${rectsFor(accessoryCells)}<animateTransform attributeName="transform" type="rotate" values="-7 ${pivotX} ${pivotY};7 ${pivotX} ${pivotY};-7 ${pivotX} ${pivotY}" dur="2.4s" repeatCount="indefinite"/></g>`;
+    }
+  }
+
+  const eyeGroup = `<g style="transform-box:fill-box;transform-origin:center;">${rectsFor(eyeCells)}<animateTransform attributeName="transform" type="scale" values="1 1;1 1;1 0.15;1 1;1 1" keyTimes="0;0.88;0.92;0.96;1" dur="4.2s" repeatCount="indefinite"/></g>`;
 
   const svg = `
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${width} ${height}" shape-rendering="crispEdges">
-      <rect width="${width}" height="${height}" rx="16" fill="#f8fafc"/>
-      ${rects}
+      ${wingGroup}
+      ${bodyGroup}
+      ${accessoryGroup}
+      ${eyeGroup}
+      ${rectsFor(mouthCells)}
     </svg>
   `;
   return `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(svg)}`;
@@ -1271,6 +1297,8 @@ function updateHud() {
   elements.bossHpBar.style.width = `${Math.max(0, (state.bossHp / state.bossMaxHp) * 100)}%`;
   elements.playerAtgBar.style.width = `${state.playerAtg}%`;
   elements.bossAtgBar.style.width = `${state.bossAtg}%`;
+  elements.playerSprite.style.setProperty("--charge", state.playerAtg / 100);
+  elements.bossSprite.style.setProperty("--charge", state.bossAtg / 100);
   elements.playerAtgText.textContent = state.playerReady ? "可攻擊" : state.paused ? "暫停" : "蓄力中";
   elements.bossAtgText.textContent =
     state.questionMode === "defense" || state.bossPendingDefense
