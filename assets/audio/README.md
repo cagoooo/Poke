@@ -16,3 +16,5 @@ Attribution is not required, but source notes are kept here for maintenance.
 ## BGM
 
 - `bgm/battle-loop.mp3` — Chiptune Garden Fight by ncone
+- `bgm/victory-loop.mp3` — Victory (Arcade) by lucadialessandro
+- `bgm/defeat-loop.mp3` — KL Peach Game Over II by lightyeartraxx

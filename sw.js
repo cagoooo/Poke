@@ -1,10 +1,10 @@
-const BUILD_VERSION = "2026.07.02-2";
+const BUILD_VERSION = "2026.07.02-3";
 const CACHE_NAME = "math-beast-gym-" + BUILD_VERSION;
 const PRECACHE = [
   "./",
   "./index.html",
-  "./styles.css?v=2026.07.02-2",
-  "./script.js?v=2026.07.02-2",
+  "./styles.css?v=2026.07.02-3",
+  "./script.js?v=2026.07.02-3",
   "./favicon.ico",
   "./favicon.svg",
   "./apple-touch-icon.png",
@@ -20,6 +20,8 @@ const PRECACHE = [
   "./assets/audio/sfx/win.mp3",
   "./assets/audio/sfx/lose.mp3",
   "./assets/audio/bgm/battle-loop.mp3",
+  "./assets/audio/bgm/victory-loop.mp3",
+  "./assets/audio/bgm/defeat-loop.mp3",
   "./version.json"
 ];
 

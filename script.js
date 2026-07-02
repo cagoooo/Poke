@@ -15,6 +15,16 @@ const CREATURE_CHOICES = [
 
 const BOSS_POOL = ["graniteox", "stormowl", "flameleo", "tidalwhale", "thornrex", "starlion"];
 const AUDIO_ROOT = "assets/audio/";
+const BGM_TRACKS = {
+  battle: "bgm/battle-loop.mp3",
+  victory: "bgm/victory-loop.mp3",
+  defeat: "bgm/defeat-loop.mp3",
+};
+const BGM_TARGET_VOLUME = {
+  battle: 0.28,
+  victory: 0.3,
+  defeat: 0.22,
+};
 const SFX_FILES = {
   attack: "sfx/attack.mp3",
   correct: "sfx/correct.mp3",
@@ -188,6 +198,7 @@ const elements = {
 const creatureCache = new Map();
 const sfxPool = {};
 let bgmAudio = null;
+let bgmKind = null;
 let bgmFadeId = 0;
 
 async function fetchCreature(nameOrId) {
@@ -426,6 +437,7 @@ function syncQuestionSettings() {
 async function startBattle(player) {
   if (state.phase !== "select") return;
   unlockAudio();
+  if (state.bgmOn) startBgm("battle");
   syncQuestionSettings();
   state.phase = "loading";
   setSelectionEnabled(false);
@@ -988,7 +1000,7 @@ function winStage() {
   stopBattleLoop();
   stopDefenseTimer();
   playSound("win");
-  stopBgm();
+  switchBgm("victory");
   elements.pauseBtn.classList.add("hidden");
   elements.questionForm.classList.add("hidden");
   elements.movePanel.classList.add("hidden");
@@ -1007,7 +1019,7 @@ function loseGame() {
   stopBattleLoop();
   stopDefenseTimer();
   playSound("lose");
-  stopBgm();
+  switchBgm("defeat");
   document.body.classList.remove("paused");
   elements.pauseOverlay.classList.add("hidden");
   elements.pauseBtn.classList.add("hidden");
@@ -1129,7 +1141,7 @@ async function goNextStage() {
     updateHud();
     elements.questionForm.classList.remove("hidden");
     setQuestionWaiting();
-    if (state.bgmOn) startBgm();
+    if (state.bgmOn) startBgm("battle");
     startBattleLoop();
   } catch (error) {
     state.phase = "stage-clear";
@@ -1143,6 +1155,7 @@ function restart() {
   stopBattleLoop();
   stopDefenseTimer();
   if (state.bgmOn) stopBgm();
+  bgmKind = null;
   document.body.classList.remove("paused");
   elements.pauseOverlay.classList.add("hidden");
   elements.battleScreen.classList.remove("active");
@@ -1212,52 +1225,67 @@ function playSound(kind) {
   audio.play().catch(() => undefined);
 }
 
-function ensureBgm() {
-  if (!bgmAudio) {
-    bgmAudio = new Audio(AUDIO_ROOT + "bgm/battle-loop.mp3");
-    bgmAudio.loop = true;
-    bgmAudio.preload = "auto";
-  }
-  return bgmAudio;
+function fadeAudioTo(audio, target, onDone) {
+  window.clearInterval(bgmFadeId);
+  const steps = 18;
+  const start = audio.volume;
+  let step = 0;
+  bgmFadeId = window.setInterval(() => {
+    step += 1;
+    audio.volume = start + (target - start) * (step / steps);
+    if (step >= steps) {
+      window.clearInterval(bgmFadeId);
+      if (onDone) onDone();
+    }
+  }, 70);
 }
 
-function startBgm() {
+function startBgm(kind) {
+  const targetKind = kind || bgmKind || "battle";
+  bgmKind = targetKind;
   if (!state.audioUnlocked || !state.bgmOn) return;
-  const audio = ensureBgm();
-  window.clearInterval(bgmFadeId);
-  audio.volume = 0;
-  audio.play().then(() => {
-    let step = 0;
-    const target = 0.28 * state.masterVolume;
-    bgmFadeId = window.setInterval(() => {
-      step += 1;
-      audio.volume = Math.min(target, (step / 18) * target);
-      if (step >= 18) window.clearInterval(bgmFadeId);
-    }, 80);
-  }).catch(() => undefined);
+  if (bgmAudio && !bgmAudio.paused && bgmAudio.dataset.kind === targetKind) return;
+
+  const target = BGM_TARGET_VOLUME[targetKind] * state.masterVolume;
+  const beginTrack = () => {
+    const audio = new Audio(AUDIO_ROOT + BGM_TRACKS[targetKind]);
+    audio.loop = true;
+    audio.preload = "auto";
+    audio.dataset.kind = targetKind;
+    audio.volume = 0;
+    bgmAudio = audio;
+    audio.play().then(() => fadeAudioTo(audio, target)).catch(() => undefined);
+  };
+
+  if (bgmAudio && !bgmAudio.paused) {
+    // 先把目前播放的那首淡出關掉，確定停了才開始播下一首，絕不同時疊音
+    const outgoing = bgmAudio;
+    fadeAudioTo(outgoing, 0, () => {
+      outgoing.pause();
+      beginTrack();
+    });
+  } else {
+    beginTrack();
+  }
+}
+
+function switchBgm(kind) {
+  startBgm(kind);
 }
 
 function stopBgm() {
-  if (!bgmAudio) return;
-  window.clearInterval(bgmFadeId);
+  if (!bgmAudio || bgmAudio.paused) return;
   const audio = bgmAudio;
-  let step = 12;
-  const start = audio.volume;
-  bgmFadeId = window.setInterval(() => {
-    step -= 1;
-    audio.volume = Math.max(0, start * (step / 12));
-    if (step <= 0) {
-      window.clearInterval(bgmFadeId);
-      audio.pause();
-    }
-  }, 60);
+  fadeAudioTo(audio, 0, () => audio.pause());
 }
 
 function updateAudioUi() {
   elements.soundToggleBtn.textContent = state.soundOn ? "音效：開" : "音效：關";
   elements.bgmToggleBtn.textContent = state.bgmOn ? "BGM：開" : "BGM：關";
   elements.volumeSlider.value = Math.round(state.masterVolume * 100);
-  if (bgmAudio && state.bgmOn) bgmAudio.volume = 0.28 * state.masterVolume;
+  if (bgmAudio && state.bgmOn && !bgmAudio.paused) {
+    bgmAudio.volume = (BGM_TARGET_VOLUME[bgmAudio.dataset.kind] || 0.28) * state.masterVolume;
+  }
 }
 
 function toggleSound() {
