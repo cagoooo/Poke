@@ -332,6 +332,8 @@ h2 {
 
 .fighter {
   position: relative;
+  display: flex;
+  flex-direction: column;
   min-height: 390px;
   padding: 18px;
   border: 1px solid var(--line);
@@ -372,11 +374,19 @@ h2 {
   }
 }
 
-.fighter::after {
+.sprite-stage {
+  position: relative;
+  flex: 1 1 auto;
+  min-height: 140px;
+  margin-top: 8px;
+  overflow: hidden;
+}
+
+.sprite-stage::after {
   content: "";
   position: absolute;
-  inset: auto 18px 24px;
-  height: 54px;
+  inset: auto 10% 10px;
+  height: 44px;
   border-radius: 50%;
   background: rgba(24, 33, 47, 0.1);
   filter: blur(1px);
@@ -475,10 +485,11 @@ h2 {
 .sprite {
   position: absolute;
   z-index: 1;
-  bottom: 48px;
+  bottom: 4px;
   width: min(72%, 260px);
-  height: 230px;
+  height: 100%;
   object-fit: contain;
+  object-position: bottom center;
   transform-origin: 50% 88%;
   --charge: 0;
   animation-name: idleFloat;
@@ -488,14 +499,14 @@ h2 {
 }
 
 .player-sprite {
-  left: 8%;
-  filter: drop-shadow(0 0 calc(var(--charge, 0) * 12px) rgba(47, 111, 237, calc(var(--charge, 0) * 0.65)));
+  left: 4%;
+  filter: drop-shadow(0 0 calc(var(--charge, 0) * 9px) rgba(47, 111, 237, calc(var(--charge, 0) * 0.65)));
 }
 
 .boss-sprite {
-  right: 8%;
+  right: 4%;
   animation-delay: -1.3s;
-  filter: drop-shadow(0 0 calc(var(--charge, 0) * 12px) rgba(227, 79, 79, calc(var(--charge, 0) * 0.65)));
+  filter: drop-shadow(0 0 calc(var(--charge, 0) * 9px) rgba(227, 79, 79, calc(var(--charge, 0) * 0.65)));
 }
 
 @keyframes idleFloat {
@@ -505,7 +516,7 @@ h2 {
   }
 
   50% {
-    transform: translateY(-8px) scale(1.02);
+    transform: translateY(-5px) scale(1.02);
   }
 }
 
@@ -520,7 +531,7 @@ h2 {
   }
 
   30% {
-    transform: translateY(-15px) scale(1.06);
+    transform: translateY(-10px) scale(1.06);
   }
 
   55% {
