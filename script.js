@@ -208,23 +208,138 @@ function createCreature(key) {
     sprite,
     backSprite: sprite,
     types: source.types,
+    color: source.color,
     attack: source.attack,
     defense: source.defense,
     hp: source.hp,
   };
 }
 
+function hexToRgba(hex, alpha) {
+  const num = parseInt(hex.replace("#", ""), 16);
+  const r = num >> 16;
+  const g = (num >> 8) & 0x00ff;
+  const b = num & 0x0000ff;
+  return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+}
+
+const TYPE_CATEGORY = {
+  草葉: "leafy",
+  森林: "leafy",
+  大地: "earth",
+  火焰: "flame",
+  水流: "fin",
+  冰水: "fin",
+  海潮: "fin",
+  閃電: "spark",
+  雷風: "spark",
+  月光: "glow",
+  光芒: "glow",
+  星光: "glow",
+  岩石: "rock",
+  疾風: "wind",
+  暗影: "shadow",
+  水晶: "crystal",
+};
+
+const HEAD_ACCESSORIES = {
+  leafy: { cells: [[0, 2], [1, 1], [1, 2], [1, 3]], shade: -18 },
+  earth: { cells: [[1, 2], [1, 3]], shade: -12 },
+  fin: { cells: [[0, 0], [1, 0], [1, 1]], shade: 22 },
+  spark: { cells: [[0, 2], [1, 1], [1, 3]], color: "#ffe066" },
+  glow: { cells: [[0, 0], [1, 0], [1, 1], [1, 2]], color: "#fff0b8" },
+  rock: { cells: [[0, 3], [1, 2], [1, 3]], shade: -30 },
+  crystal: { cells: [[0, 1], [1, 0], [1, 1], [1, 2]], color: "#d7f5ff" },
+};
+
+const SIDE_WINGS = {
+  wind: { cells: [[3, 7], [4, 7], [4, 8], [5, 7]], shade: -14 },
+  shadow: { cells: [[3, 7], [4, 7], [4, 8], [5, 7], [5, 8], [6, 7]], color: "#3a2b57" },
+};
+
+const BODY_ROWS = [
+  [1, 2, 3],
+  [0, 1, 2, 3, 4],
+  [0, 1, 2, 3, 4, 5],
+  [0, 1, 2, 3, 4, 5, 6],
+  [0, 1, 2, 3, 4, 5, 6],
+  [0, 1, 2, 3, 4, 5, 6],
+  [0, 1, 2, 3, 4, 5, 6],
+  [0, 1, 2, 3, 4, 5],
+  [0, 1, 2, 3],
+  [1, 2],
+];
+
+function shadeColor(hex, percent) {
+  const num = parseInt(hex.replace("#", ""), 16);
+  const amount = Math.round((255 * percent) / 100);
+  const clamp = (value) => Math.max(0, Math.min(255, value));
+  const r = clamp((num >> 16) + amount);
+  const g = clamp(((num >> 8) & 0x00ff) + amount);
+  const b = clamp((num & 0x0000ff) + amount);
+  return `#${(0x1000000 + r * 0x10000 + g * 0x100 + b).toString(16).slice(1)}`;
+}
+
+function getCreatureCategory(creature) {
+  for (const type of creature.types) {
+    if (TYPE_CATEGORY[type]) return TYPE_CATEGORY[type];
+  }
+  return "leafy";
+}
+
 function createCreatureSprite(creature) {
-  const label = creature.name.slice(0, 2);
-  const color = creature.color;
+  const cell = 12;
+  const cx = 8;
+  const cols = cx * 2 + 1;
+  const bodyRowOffset = 2;
+  const width = cols * cell;
+  const height = (BODY_ROWS.length + bodyRowOffset) * cell;
+
+  const category = getCreatureCategory(creature);
+  const bodyColor = creature.color;
+  const shadeDark = shadeColor(bodyColor, -20);
+
+  let rects = "";
+  const pixel = (row, c, color) => {
+    const y = row * cell;
+    if (c === 0) {
+      rects += `<rect x="${cx * cell}" y="${y}" width="${cell}" height="${cell}" fill="${color}"/>`;
+    } else {
+      rects += `<rect x="${(cx + c) * cell}" y="${y}" width="${cell}" height="${cell}" fill="${color}"/>`;
+      rects += `<rect x="${(cx - c) * cell}" y="${y}" width="${cell}" height="${cell}" fill="${color}"/>`;
+    }
+  };
+
+  const wing = SIDE_WINGS[category];
+  if (wing) {
+    const wingColor = wing.color ?? shadeColor(bodyColor, wing.shade);
+    wing.cells.forEach(([row, c]) => pixel(row + bodyRowOffset, c, wingColor));
+  }
+
+  BODY_ROWS.forEach((cs, row) => {
+    const color = row >= 6 ? shadeDark : bodyColor;
+    cs.forEach((c) => pixel(row + bodyRowOffset, c, color));
+  });
+
+  if (category === "flame") {
+    pixel(0, 0, "#ffce54");
+    pixel(1, 0, "#ff8a3d");
+    pixel(1, 1, "#ff8a3d");
+  } else {
+    const accessory = HEAD_ACCESSORIES[category];
+    if (accessory) {
+      const color = accessory.color ?? shadeColor(bodyColor, accessory.shade);
+      accessory.cells.forEach(([row, c]) => pixel(row, c, color));
+    }
+  }
+
+  pixel(3 + bodyRowOffset, 2, "#18212f");
+  pixel(5 + bodyRowOffset, 0, shadeDark);
+
   const svg = `
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 180">
-      <rect width="180" height="180" rx="32" fill="#f8fafc"/>
-      <circle cx="90" cy="82" r="56" fill="${color}"/>
-      <circle cx="68" cy="70" r="8" fill="#18212f"/>
-      <circle cx="112" cy="70" r="8" fill="#18212f"/>
-      <path d="M62 104c18 18 38 18 56 0" fill="none" stroke="#18212f" stroke-width="8" stroke-linecap="round"/>
-      <text x="90" y="158" text-anchor="middle" font-family="Arial, sans-serif" font-size="26" font-weight="800" fill="#18212f">${label}</text>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${width} ${height}" shape-rendering="crispEdges">
+      <rect width="${width}" height="${height}" rx="16" fill="#f8fafc"/>
+      ${rects}
     </svg>
   `;
   return `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(svg)}`;
@@ -240,12 +355,16 @@ async function loadChoices() {
       const card = document.createElement("button");
       card.className = "creature-card";
       card.type = "button";
+      card.style.setProperty("--creature-color", creature.color);
+      card.style.setProperty("--creature-tint", hexToRgba(creature.color, 0.14));
       card.innerHTML = `
+        <div class="creature-avatar">
+          <img src="${creature.sprite}" alt="${creature.name}" loading="lazy">
+        </div>
         <strong>${creature.name}</strong>
         <span>#${creature.id.toString().padStart(3, "0")} 攻擊 ${creature.attack}</span>
-        <img src="${creature.sprite}" alt="${creature.name}" loading="lazy">
         <div class="type-list">${creature.types
-          .map((type) => `<span class="type-pill">${type}</span>`)
+          .map((type) => `<span class="type-pill" style="background:${hexToRgba(creature.color, 0.16)};color:${shadeColor(creature.color, -35)}">${type}</span>`)
           .join("")}</div>
       `;
       card.addEventListener("click", () => startBattle(creature));

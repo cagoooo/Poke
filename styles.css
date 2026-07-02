@@ -255,10 +255,11 @@ h2 {
   min-height: 214px;
   padding: 14px;
   border: 1px solid var(--line);
-  border-radius: 8px;
+  border-radius: 10px;
   background: var(--panel);
   box-shadow: 0 8px 28px rgba(29, 45, 72, 0.08);
   cursor: pointer;
+  text-align: center;
   transition:
     transform 160ms ease,
     box-shadow 160ms ease,
@@ -268,24 +269,33 @@ h2 {
 .creature-card:hover,
 .creature-card:focus-visible {
   transform: translateY(-4px);
-  border-color: rgba(47, 111, 237, 0.45);
+  border-color: var(--creature-color, rgba(47, 111, 237, 0.45));
   box-shadow: var(--shadow);
   outline: none;
 }
 
+.creature-avatar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 108px;
+  height: 108px;
+  margin: 0 auto 8px;
+  border-radius: 14px;
+  background: var(--creature-tint, #eef3fa);
+}
+
 .creature-card img {
   display: block;
-  width: 122px;
-  height: 122px;
+  width: 88px;
+  height: 88px;
   object-fit: contain;
-  margin: 8px auto 2px;
-  image-rendering: auto;
+  image-rendering: pixelated;
 }
 
 .creature-card strong {
   display: block;
   font-size: 1.2rem;
-  text-transform: capitalize;
 }
 
 .creature-card span {
@@ -296,15 +306,14 @@ h2 {
 .type-list {
   display: flex;
   flex-wrap: wrap;
+  justify-content: center;
   gap: 6px;
   margin-top: 10px;
 }
 
 .type-pill {
-  padding: 4px 8px;
+  padding: 4px 10px;
   border-radius: 999px;
-  background: #eef3fa;
-  color: #344154;
   font-size: 0.78rem;
   font-weight: 700;
 }
@@ -996,9 +1005,15 @@ body.class-mode .sprite {
     padding: 12px;
   }
 
+  .creature-avatar {
+    width: 84px;
+    height: 84px;
+    margin-bottom: 6px;
+  }
+
   .creature-card img {
-    width: 92px;
-    height: 92px;
+    width: 68px;
+    height: 68px;
   }
 
   .creature-card strong {
