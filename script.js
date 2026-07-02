@@ -543,6 +543,8 @@ function openAttackQuestion() {
   elements.attackBtn.disabled = false;
   elements.answerInput.disabled = false;
   elements.playerAtgBar.classList.add("ready-pulse");
+  elements.playerSprite.classList.remove("sprite-guard");
+  elements.playerSprite.classList.add("sprite-ready");
   setQuestion("attack");
   elements.answerInput.focus();
 }
@@ -562,6 +564,9 @@ function openDefenseQuestion() {
   elements.playerAtgBar.classList.remove("ready-pulse");
   elements.movePanel.classList.add("hidden");
   elements.bossAtgBar.classList.add("ready-pulse");
+  elements.playerSprite.classList.remove("sprite-ready");
+  elements.playerSprite.classList.add("sprite-guard");
+  elements.bossSprite.classList.add("sprite-charging");
   elements.battleMessage.textContent = `${state.boss.name} 準備攻擊！答對防禦題可以大幅減傷。`;
   setQuestion("defense");
   startDefenseTimer();
@@ -582,6 +587,8 @@ function setQuestionWaiting() {
   elements.attackBtn.textContent = "攻擊";
   elements.playerAtgBar.classList.remove("ready-pulse");
   elements.bossAtgBar.classList.remove("ready-pulse");
+  elements.playerSprite.classList.remove("sprite-ready", "sprite-guard");
+  elements.bossSprite.classList.remove("sprite-charging");
   stopDefenseTimer();
 }
 
@@ -713,6 +720,7 @@ function resolveAttack(guess) {
       playSound("attack");
       showDamage(elements.bossPanel, damage, "miss");
       flashPanel(elements.bossPanel, "hit-flash");
+      playAttack(elements.bossSprite, "hit-shake");
     }
     playSound("correct");
     elements.battleMessage.textContent = outcome.message;
@@ -728,6 +736,7 @@ function resolveAttack(guess) {
     playSound("wrong");
     showDamage(elements.playerPanel, penalty, "miss");
     flashPanel(elements.playerPanel, "hit-flash");
+    playAttack(elements.playerSprite, "hit-shake");
     elements.battleMessage.textContent = `答案是 ${question.answer}。攻擊失手，受到 ${penalty} 點反震傷害。`;
     if (state.playerHp <= 0) {
       loseGame();
@@ -801,6 +810,7 @@ function resolveDefense(guess) {
     showDamage(elements.bossPanel, counter, "miss");
     flashPanel(elements.playerPanel, "guard-flash");
     flashPanel(elements.bossPanel, "hit-flash");
+    playAttack(elements.bossSprite, "hit-shake");
     elements.battleMessage.textContent = `完美閃避！沒有受到傷害，並反擊 ${counter} 點。`;
   } else if (guess === question.answer) {
     state.correct += 1;
@@ -814,6 +824,7 @@ function resolveDefense(guess) {
     playSound("wrong");
     showDamage(elements.playerPanel, damage, "miss");
     flashPanel(elements.playerPanel, "hit-flash");
+    playAttack(elements.playerSprite, "hit-shake");
     elements.battleMessage.textContent = `防禦失敗，答案是 ${question.answer}。受到 ${damage} 點傷害。`;
   }
 
@@ -821,6 +832,7 @@ function resolveDefense(guess) {
   state.bossAtg = 0;
   state.pendingBossDamage = 0;
   state.bossPendingDefense = false;
+  elements.bossSprite.classList.remove("sprite-charging");
   playAttack(elements.bossSprite, "attack-back");
 
   if (state.bossHp <= 0) {
@@ -916,11 +928,11 @@ function togglePause() {
   }
 }
 
-function playAttack(sprite, className) {
+function playAttack(sprite, className, duration = 420) {
   sprite.classList.remove(className);
   window.requestAnimationFrame(() => {
     sprite.classList.add(className);
-    window.setTimeout(() => sprite.classList.remove(className), 190);
+    window.setTimeout(() => sprite.classList.remove(className), duration);
   });
 }
 

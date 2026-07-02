@@ -479,7 +479,8 @@ h2 {
   width: min(72%, 260px);
   height: 230px;
   object-fit: contain;
-  transition: transform 180ms ease;
+  transform-origin: 50% 88%;
+  animation: idleFloat 2.6s ease-in-out infinite;
 }
 
 .player-sprite {
@@ -488,14 +489,153 @@ h2 {
 
 .boss-sprite {
   right: 8%;
+  animation-delay: -1.3s;
 }
 
-.attack-forward {
-  transform: translateX(22px) scale(1.05);
+@keyframes idleFloat {
+  0%,
+  100% {
+    transform: translateY(0) scale(1);
+  }
+
+  50% {
+    transform: translateY(-8px) scale(1.02);
+  }
 }
 
-.attack-back {
-  transform: translateX(-22px) scale(1.05);
+.sprite.sprite-ready {
+  animation: readyBounce 0.55s ease-in-out infinite;
+}
+
+@keyframes readyBounce {
+  0%,
+  100% {
+    transform: translateY(0) scale(1);
+  }
+
+  30% {
+    transform: translateY(-15px) scale(1.06);
+  }
+
+  55% {
+    transform: translateY(1px) scale(0.96);
+  }
+}
+
+.sprite.sprite-guard {
+  animation: guardPulse 0.9s ease-in-out infinite;
+}
+
+@keyframes guardPulse {
+  0%,
+  100% {
+    transform: translateY(0) scale(0.92);
+    filter: drop-shadow(0 0 0 rgba(47, 111, 237, 0));
+  }
+
+  50% {
+    transform: translateY(3px) scale(0.88);
+    filter: drop-shadow(0 0 10px rgba(47, 111, 237, 0.55));
+  }
+}
+
+.sprite.sprite-charging {
+  animation: chargeGlow 0.5s ease-in-out infinite;
+}
+
+@keyframes chargeGlow {
+  0%,
+  100% {
+    transform: translateX(0) scale(1);
+    filter: drop-shadow(0 0 0 rgba(227, 79, 79, 0));
+  }
+
+  50% {
+    transform: translateX(-6px) scale(1.07);
+    filter: drop-shadow(0 0 12px rgba(227, 79, 79, 0.6));
+  }
+}
+
+.sprite.attack-forward {
+  animation: attackForward 380ms ease;
+}
+
+@keyframes attackForward {
+  0% {
+    transform: translateX(0) scale(1) rotate(0deg);
+  }
+
+  40% {
+    transform: translateX(34px) scale(1.12) rotate(-6deg);
+  }
+
+  65% {
+    transform: translateX(28px) scale(1.08) rotate(-2deg);
+  }
+
+  100% {
+    transform: translateX(0) scale(1) rotate(0deg);
+  }
+}
+
+.sprite.attack-back {
+  animation: attackBack 380ms ease;
+}
+
+@keyframes attackBack {
+  0% {
+    transform: translateX(0) scale(1) rotate(0deg);
+  }
+
+  40% {
+    transform: translateX(-34px) scale(1.12) rotate(6deg);
+  }
+
+  65% {
+    transform: translateX(-28px) scale(1.08) rotate(2deg);
+  }
+
+  100% {
+    transform: translateX(0) scale(1) rotate(0deg);
+  }
+}
+
+.sprite.hit-shake {
+  animation: hitShake 360ms ease;
+}
+
+@keyframes hitShake {
+  0% {
+    transform: translateX(0);
+  }
+
+  15% {
+    transform: translateX(-9px) rotate(-5deg);
+  }
+
+  30% {
+    transform: translateX(8px) rotate(4deg);
+  }
+
+  45% {
+    transform: translateX(-6px) rotate(-3deg);
+  }
+
+  60% {
+    transform: translateX(5px) rotate(2deg);
+  }
+
+  75% {
+    transform: translateX(-2px);
+  }
+
+  100% {
+    transform: translateX(0);
+  }
+}
+
+body.paused .sprite {
+  animation-play-state: paused;
 }
 
 .battle-center {
