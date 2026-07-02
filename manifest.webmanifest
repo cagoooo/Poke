@@ -1,7 +1,7 @@
 {
-  "name": "寶可夢數學道館",
+  "name": "萌獸數學道館",
   "short_name": "數學道館",
-  "description": "選擇寶可夢，透過加減乘除與 ATG 即時對戰挑戰道館關主。",
+  "description": "選擇萌獸，透過加減乘除與 ATG 即時對戰挑戰道館關主。",
   "lang": "zh-Hant",
   "start_url": "./",
   "scope": "./",

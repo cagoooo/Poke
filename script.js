@@ -1,20 +1,19 @@
-const POKEMON_CHOICES = [
-  "pikachu",
-  "bulbasaur",
-  "charmander",
-  "squirtle",
-  "eevee",
-  "jigglypuff",
-  "psyduck",
-  "machop",
-  "growlithe",
-  "gastly",
-  "dratini",
-  "snorlax",
+const CREATURE_CHOICES = [
+  "leafsprout",
+  "embertail",
+  "bubblecub",
+  "sparkbit",
+  "moonpuff",
+  "rockhorn",
+  "windwing",
+  "mudmole",
+  "frostfin",
+  "sunbun",
+  "shadowbat",
+  "crystalotter",
 ];
 
-const BOSS_POOL = ["geodude", "onix", "gengar", "lapras", "dragonite", "mewtwo"];
-const API_ROOT = "https://pokeapi.co/api/v2/pokemon/";
+const BOSS_POOL = ["graniteox", "stormowl", "flameleo", "tidalwhale", "thornrex", "starlion"];
 const AUDIO_ROOT = "assets/audio/";
 const SFX_FILES = {
   attack: "sfx/attack.mp3",
@@ -34,25 +33,25 @@ const SFX_VOLUMES = {
   win: 0.52,
   lose: 0.48,
 };
-const FALLBACK_POKEMON = {
-  pikachu: { id: 25, types: ["electric"], hp: 35, attack: 55, defense: 40, color: "#f6c344" },
-  bulbasaur: { id: 1, types: ["grass", "poison"], hp: 45, attack: 49, defense: 49, color: "#63c98d" },
-  charmander: { id: 4, types: ["fire"], hp: 39, attack: 52, defense: 43, color: "#f47c48" },
-  squirtle: { id: 7, types: ["water"], hp: 44, attack: 48, defense: 65, color: "#5aa9e6" },
-  eevee: { id: 133, types: ["normal"], hp: 55, attack: 55, defense: 50, color: "#b98b62" },
-  jigglypuff: { id: 39, types: ["normal", "fairy"], hp: 115, attack: 45, defense: 20, color: "#f3a7c8" },
-  psyduck: { id: 54, types: ["water"], hp: 50, attack: 52, defense: 48, color: "#f2c84b" },
-  machop: { id: 66, types: ["fighting"], hp: 70, attack: 80, defense: 50, color: "#9aa3b2" },
-  growlithe: { id: 58, types: ["fire"], hp: 55, attack: 70, defense: 45, color: "#df6d38" },
-  gastly: { id: 92, types: ["ghost", "poison"], hp: 30, attack: 35, defense: 30, color: "#6f5aa8" },
-  dratini: { id: 147, types: ["dragon"], hp: 41, attack: 64, defense: 45, color: "#6fc4e8" },
-  snorlax: { id: 143, types: ["normal"], hp: 160, attack: 110, defense: 65, color: "#50758b" },
-  geodude: { id: 74, types: ["rock", "ground"], hp: 40, attack: 80, defense: 100, color: "#8f8177" },
-  onix: { id: 95, types: ["rock", "ground"], hp: 35, attack: 45, defense: 160, color: "#7d8388" },
-  gengar: { id: 94, types: ["ghost", "poison"], hp: 60, attack: 65, defense: 60, color: "#5d4a91" },
-  lapras: { id: 131, types: ["water", "ice"], hp: 130, attack: 85, defense: 80, color: "#64b6d9" },
-  dragonite: { id: 149, types: ["dragon", "flying"], hp: 91, attack: 134, defense: 95, color: "#e0a34f" },
-  mewtwo: { id: 150, types: ["psychic"], hp: 106, attack: 110, defense: 90, color: "#b78ee8" },
+const CREATURES = {
+  leafsprout: { id: 1, name: "葉芽獸", types: ["草葉"], hp: 48, attack: 50, defense: 52, color: "#63c98d" },
+  embertail: { id: 2, name: "焰尾獸", types: ["火焰"], hp: 44, attack: 62, defense: 42, color: "#f47c48" },
+  bubblecub: { id: 3, name: "泡泡熊", types: ["水流"], hp: 54, attack: 48, defense: 64, color: "#5aa9e6" },
+  sparkbit: { id: 4, name: "電芽兔", types: ["閃電"], hp: 42, attack: 66, defense: 38, color: "#f6c344" },
+  moonpuff: { id: 5, name: "月絨球", types: ["月光"], hp: 82, attack: 42, defense: 36, color: "#f3a7c8" },
+  rockhorn: { id: 6, name: "岩角犀", types: ["岩石"], hp: 70, attack: 58, defense: 78, color: "#8f8177" },
+  windwing: { id: 7, name: "風翼鳥", types: ["疾風"], hp: 45, attack: 60, defense: 44, color: "#8bd3ff" },
+  mudmole: { id: 8, name: "泥土鼴", types: ["大地"], hp: 62, attack: 54, defense: 68, color: "#b98b62" },
+  frostfin: { id: 9, name: "霜鰭鯨", types: ["冰水"], hp: 76, attack: 52, defense: 60, color: "#64b6d9" },
+  sunbun: { id: 10, name: "陽光兔", types: ["光芒"], hp: 50, attack: 58, defense: 50, color: "#ffd166" },
+  shadowbat: { id: 11, name: "影翼蝠", types: ["暗影"], hp: 40, attack: 72, defense: 34, color: "#6f5aa8" },
+  crystalotter: { id: 12, name: "晶河獺", types: ["水晶"], hp: 56, attack: 58, defense: 58, color: "#6fc4e8" },
+  graniteox: { id: 101, name: "花崗牛", types: ["岩石"], hp: 92, attack: 70, defense: 94, color: "#7d8388" },
+  stormowl: { id: 102, name: "雷雲鴞", types: ["雷風"], hp: 74, attack: 82, defense: 62, color: "#8b7cf6" },
+  flameleo: { id: 103, name: "赤焰獅", types: ["火焰"], hp: 82, attack: 92, defense: 64, color: "#df6d38" },
+  tidalwhale: { id: 104, name: "潮汐鯨", types: ["海潮"], hp: 116, attack: 78, defense: 84, color: "#3ba7d8" },
+  thornrex: { id: 105, name: "棘冠龍", types: ["森林"], hp: 96, attack: 88, defense: 88, color: "#4f9f6b" },
+  starlion: { id: 106, name: "星耀獅", types: ["星光"], hp: 108, attack: 96, defense: 82, color: "#b78ee8" },
 };
 
 const DIFFICULTIES = {
@@ -138,7 +137,7 @@ const state = {
 const elements = {
   selectScreen: document.querySelector("#selectScreen"),
   battleScreen: document.querySelector("#battleScreen"),
-  pokemonGrid: document.querySelector("#pokemonGrid"),
+  creatureGrid: document.querySelector("#creatureGrid"),
   difficultyCards: document.querySelectorAll(".difficulty-card"),
   operationSelect: document.querySelector("#operationSelect"),
   maxNumberInput: document.querySelector("#maxNumberInput"),
@@ -186,61 +185,38 @@ const elements = {
   bossPanel: document.querySelector(".boss-panel"),
 };
 
-const pokemonCache = new Map();
+const creatureCache = new Map();
 const sfxPool = {};
 let bgmAudio = null;
 let bgmFadeId = 0;
 
-async function fetchPokemon(nameOrId) {
-  if (pokemonCache.has(nameOrId)) return pokemonCache.get(nameOrId);
-
-  let pokemon;
-  try {
-    const response = await fetch(`${API_ROOT}${nameOrId}`);
-    if (!response.ok) throw new Error(`PokéAPI 讀取失敗：${nameOrId}`);
-
-    const data = await response.json();
-    pokemon = {
-      id: data.id,
-      name: data.name,
-      sprite:
-        data.sprites.other?.["official-artwork"]?.front_default ||
-        data.sprites.front_default,
-      backSprite: data.sprites.back_default || data.sprites.front_default,
-      types: data.types.map((entry) => entry.type.name),
-      attack: findStat(data, "attack"),
-      defense: findStat(data, "defense"),
-      hp: findStat(data, "hp"),
-      offline: false,
-    };
-  } catch (error) {
-    pokemon = createFallbackPokemon(String(nameOrId));
-  }
-
-  pokemonCache.set(nameOrId, pokemon);
-  return pokemon;
+async function fetchCreature(nameOrId) {
+  if (creatureCache.has(nameOrId)) return creatureCache.get(nameOrId);
+  const creature = createCreature(String(nameOrId));
+  creatureCache.set(nameOrId, creature);
+  return creature;
 }
 
-function createFallbackPokemon(name) {
-  const fallback = FALLBACK_POKEMON[name];
-  if (!fallback) throw new Error(`沒有可用的寶可夢資料：${name}`);
+function createCreature(key) {
+  const source = CREATURES[key];
+  if (!source) throw new Error(`沒有可用的萌獸資料：${key}`);
 
-  const sprite = createFallbackSprite(name, fallback.color);
+  const sprite = createCreatureSprite(source);
   return {
-    id: fallback.id,
-    name,
+    id: source.id,
+    name: source.name,
     sprite,
     backSprite: sprite,
-    types: fallback.types,
-    attack: fallback.attack,
-    defense: fallback.defense,
-    hp: fallback.hp,
-    offline: true,
+    types: source.types,
+    attack: source.attack,
+    defense: source.defense,
+    hp: source.hp,
   };
 }
 
-function createFallbackSprite(name, color) {
-  const label = name.slice(0, 2).toUpperCase();
+function createCreatureSprite(creature) {
+  const label = creature.name.slice(0, 2);
+  const color = creature.color;
   const svg = `
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 180">
       <rect width="180" height="180" rx="32" fill="#f8fafc"/>
@@ -254,33 +230,29 @@ function createFallbackSprite(name, color) {
   return `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(svg)}`;
 }
 
-function findStat(data, statName) {
-  return data.stats.find((entry) => entry.stat.name === statName)?.base_stat ?? 50;
-}
-
 async function loadChoices() {
-  elements.pokemonGrid.innerHTML = '<div class="loading">正在從 PokéAPI 召喚寶可夢...</div>';
+  elements.creatureGrid.innerHTML = '<div class="loading">正在召喚原創萌獸...</div>';
 
   try {
-    const pokemons = await Promise.all(POKEMON_CHOICES.map(fetchPokemon));
-    elements.pokemonGrid.innerHTML = "";
-    pokemons.forEach((pokemon) => {
+    const creatures = await Promise.all(CREATURE_CHOICES.map(fetchCreature));
+    elements.creatureGrid.innerHTML = "";
+    creatures.forEach((creature) => {
       const card = document.createElement("button");
-      card.className = "pokemon-card";
+      card.className = "creature-card";
       card.type = "button";
       card.innerHTML = `
-        <strong>${pokemon.name}</strong>
-        <span>#${pokemon.id.toString().padStart(3, "0")} 攻擊 ${pokemon.attack}</span>
-        <img src="${pokemon.sprite}" alt="${pokemon.name}" loading="lazy">
-        <div class="type-list">${pokemon.types
+        <strong>${creature.name}</strong>
+        <span>#${creature.id.toString().padStart(3, "0")} 攻擊 ${creature.attack}</span>
+        <img src="${creature.sprite}" alt="${creature.name}" loading="lazy">
+        <div class="type-list">${creature.types
           .map((type) => `<span class="type-pill">${type}</span>`)
           .join("")}</div>
       `;
-      card.addEventListener("click", () => startBattle(pokemon));
-      elements.pokemonGrid.append(card);
+      card.addEventListener("click", () => startBattle(creature));
+      elements.creatureGrid.append(card);
     });
   } catch (error) {
-    elements.pokemonGrid.innerHTML = `
+    elements.creatureGrid.innerHTML = `
       <div class="error">
         ${error.message}，請確認網路後再試一次。
         <button id="retryLoadBtn" class="ghost-btn" type="button">重新載入</button>
@@ -350,7 +322,7 @@ async function startBattle(player) {
     setQuestionWaiting();
     startBattleLoop();
   } catch (error) {
-    elements.battleMessage.textContent = `${error.message}，請重新選擇寶可夢再試一次。`;
+    elements.battleMessage.textContent = `${error.message}，請重新選擇萌獸再試一次。`;
     restart();
   }
 }
@@ -370,7 +342,7 @@ async function prepareBoss() {
   elements.battleMessage.textContent = `目前難度：${getDifficulty().name}。新關主登場，ATG 滿後就能行動！`;
 
   const bossName = BOSS_POOL[(state.stage - 1) % BOSS_POOL.length];
-  const boss = await fetchPokemon(bossName);
+  const boss = await fetchCreature(bossName);
   state.boss = boss;
   state.bossMaxHp = 108 + state.stage * 34 + Math.floor(boss.defense * 0.42);
   state.bossHp = state.bossMaxHp;
@@ -896,7 +868,7 @@ function renderReview() {
   const accuracy = state.attempted ? Math.round((state.correct / state.attempted) * 100) : 0;
   elements.summaryCards.innerHTML = `
     <article class="summary-card"><span>結果</span><strong>${state.result === "win" ? "過關" : "挑戰結束"}</strong></article>
-    <article class="summary-card"><span>寶可夢</span><strong>${state.player?.name ?? "-"}</strong></article>
+    <article class="summary-card"><span>萌獸</span><strong>${state.player?.name ?? "-"}</strong></article>
     <article class="summary-card"><span>難度</span><strong>${getDifficulty().name}</strong></article>
     <article class="summary-card"><span>答對率</span><strong>${accuracy}%</strong></article>
     <article class="summary-card"><span>錯題</span><strong>${state.mistakes.length}</strong></article>

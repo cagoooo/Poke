@@ -3,10 +3,10 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>寶可夢數學道館</title>
+    <title>萌獸數學道館</title>
     <meta
       name="description"
-      content="選擇寶可夢，透過加減乘除與 ATG 即時對戰挑戰道館關主，適合課堂投影與數學練習。"
+      content="選擇萌獸，透過加減乘除與 ATG 即時對戰挑戰道館關主，適合課堂投影與數學練習。"
     />
     <meta name="theme-color" content="#2f6fed" />
     <link rel="canonical" href="https://cagoooo.github.io/Poke/" />
@@ -16,34 +16,33 @@
     <link rel="manifest" href="manifest.webmanifest" />
     <meta property="og:type" content="website" />
     <meta property="og:url" content="https://cagoooo.github.io/Poke/" />
-    <meta property="og:title" content="寶可夢數學道館" />
+    <meta property="og:title" content="萌獸數學道館" />
     <meta
       property="og:description"
-      content="選寶可夢、答數學題、放招式，透過 ATG 即時對戰擊敗道館關主！"
+      content="選萌獸、答數學題、放招式，透過 ATG 即時對戰擊敗道館關主！"
     />
-    <meta property="og:image" content="https://cagoooo.github.io/Poke/assets/og-pokemon-math.png?v=20260630-1" />
-    <meta property="og:image:secure_url" content="https://cagoooo.github.io/Poke/assets/og-pokemon-math.png?v=20260630-1" />
+    <meta property="og:image" content="https://cagoooo.github.io/Poke/assets/og-math-beast-gym.png?v=20260702-1" />
+    <meta property="og:image:secure_url" content="https://cagoooo.github.io/Poke/assets/og-math-beast-gym.png?v=20260702-1" />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
     <meta property="og:image:type" content="image/png" />
-    <meta property="og:image:alt" content="寶可夢數學道館：ATG 即時對戰與加減乘除挑戰" />
+    <meta property="og:image:alt" content="萌獸數學道館：ATG 即時對戰與加減乘除挑戰" />
     <meta property="og:locale" content="zh_TW" />
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="寶可夢數學道館" />
+    <meta name="twitter:title" content="萌獸數學道館" />
     <meta
       name="twitter:description"
-      content="選寶可夢、答數學題、放招式，透過 ATG 即時對戰擊敗道館關主！"
+      content="選萌獸、答數學題、放招式，透過 ATG 即時對戰擊敗道館關主！"
     />
-    <meta name="twitter:image" content="https://cagoooo.github.io/Poke/assets/og-pokemon-math.png?v=20260630-1" />
-    <link rel="preconnect" href="https://pokeapi.co" />
-    <link rel="stylesheet" href="styles.css?v=2026.06.30-3" />
+    <meta name="twitter:image" content="https://cagoooo.github.io/Poke/assets/og-math-beast-gym.png?v=20260702-1" />
+    <link rel="stylesheet" href="styles.css?v=2026.07.02-1" />
   </head>
   <body>
     <main class="app-shell">
       <section class="topbar" aria-label="遊戲狀態">
         <div>
-          <p class="eyebrow">PokéAPI Math Battle</p>
-          <h1>寶可夢數學道館</h1>
+          <p class="eyebrow">原創萌獸 Math Battle</p>
+          <h1>萌獸數學道館</h1>
           <button id="classModeBtn" class="ghost-btn compact-btn" type="button">課堂模式</button>
         </div>
         <div class="audio-controls" aria-label="音訊控制">
@@ -77,8 +76,8 @@
       <section id="selectScreen" class="screen active" aria-labelledby="selectTitle">
         <div class="select-copy">
           <p class="eyebrow">選擇夥伴</p>
-          <h2 id="selectTitle">挑一隻寶可夢，準備用數學破關</h2>
-          <p>每答對一題加減乘除，你的寶可夢就會攻擊關主。答錯會被反擊，連擊越高傷害越漂亮。</p>
+          <h2 id="selectTitle">挑一隻萌獸，準備用數學破關</h2>
+          <p>每答對一題加減乘除，你的萌獸就會攻擊關主。答錯會被反擊，連擊越高傷害越漂亮。</p>
         </div>
         <div class="difficulty-panel" aria-label="難度選擇">
           <button class="difficulty-card" type="button" data-difficulty="low">
@@ -114,7 +113,7 @@
             <span>允許進位 / 退位</span>
           </label>
         </div>
-        <div id="pokemonGrid" class="pokemon-grid" aria-live="polite"></div>
+        <div id="creatureGrid" class="creature-grid" aria-live="polite"></div>
       </section>
 
       <section id="battleScreen" class="screen battle-screen" aria-label="道館對戰">
@@ -139,7 +138,7 @@
             <div id="battleMessage" class="battle-message">讀取對戰資料中...</div>
             <button id="pauseBtn" class="ghost-btn hidden" type="button">暫停</button>
             <button id="nextStageBtn" class="primary-btn hidden" type="button">挑戰下一位關主</button>
-            <button id="restartBtn" class="ghost-btn hidden" type="button">重新選擇寶可夢</button>
+            <button id="restartBtn" class="ghost-btn hidden" type="button">重新選擇萌獸</button>
           </div>
 
           <article class="fighter boss-panel">
@@ -211,11 +210,11 @@
       </section>
     </main>
 
-    <script src="script.js?v=2026.06.30-3"></script>
+    <script src="script.js?v=2026.07.02-1"></script>
     <script>
       (function () {
         if (!("serviceWorker" in navigator)) return;
-        var APP_VERSION = "2026.06.30-3";
+        var APP_VERSION = "2026.07.02-1";
         var reloaded = false;
 
         function showUpdateNotice(waitingWorker) {

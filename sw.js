@@ -1,17 +1,17 @@
-const BUILD_VERSION = "2026.06.30-3";
-const CACHE_NAME = "pokemon-math-gym-" + BUILD_VERSION;
+const BUILD_VERSION = "2026.07.02-1";
+const CACHE_NAME = "math-beast-gym-" + BUILD_VERSION;
 const PRECACHE = [
   "./",
   "./index.html",
-  "./styles.css?v=2026.06.30-3",
-  "./script.js?v=2026.06.30-3",
+  "./styles.css?v=2026.07.02-1",
+  "./script.js?v=2026.07.02-1",
   "./favicon.ico",
   "./favicon.svg",
   "./apple-touch-icon.png",
   "./manifest.webmanifest",
   "./assets/icon-192.png",
   "./assets/icon-512.png",
-  "./assets/og-pokemon-math.png",
+  "./assets/og-math-beast-gym.png",
   "./assets/audio/sfx/attack.mp3",
   "./assets/audio/sfx/correct.mp3",
   "./assets/audio/sfx/wrong.mp3",
@@ -37,7 +37,7 @@ self.addEventListener("activate", (event) => {
       const keys = await caches.keys();
       await Promise.all(
         keys
-          .filter((key) => key.startsWith("pokemon-math-gym-") && key !== CACHE_NAME)
+          .filter((key) => key.startsWith("math-beast-gym-") && key !== CACHE_NAME)
           .map((key) => caches.delete(key))
       );
       await self.clients.claim();

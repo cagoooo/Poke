@@ -26,32 +26,42 @@ function Add-RoundedRect($Graphics, $Brush, $X, $Y, $W, $H, $R) {
   $path.Dispose()
 }
 
-function Draw-PokeMathMark($Graphics, $Cx, $Cy, $Size) {
-  $red = New-Object System.Drawing.SolidBrush([System.Drawing.Color]::FromArgb(232, 79, 79))
-  $white = New-Object System.Drawing.SolidBrush([System.Drawing.Color]::White)
+function Draw-BeastMathMark($Graphics, $Cx, $Cy, $Size) {
+  $teal = New-Object System.Drawing.SolidBrush([System.Drawing.Color]::FromArgb(48, 196, 170))
+  $blue = New-Object System.Drawing.SolidBrush([System.Drawing.Color]::FromArgb(47, 111, 237))
+  $gold = New-Object System.Drawing.SolidBrush([System.Drawing.Color]::FromArgb(246, 195, 68))
   $ink = New-Object System.Drawing.SolidBrush([System.Drawing.Color]::FromArgb(24, 33, 47))
-  $linePen = New-Object System.Drawing.Pen([System.Drawing.Color]::FromArgb(24, 33, 47), [Math]::Max(4, $Size * 0.045))
-  $circlePen = New-Object System.Drawing.Pen([System.Drawing.Color]::FromArgb(24, 33, 47), [Math]::Max(5, $Size * 0.06))
+  $white = New-Object System.Drawing.SolidBrush([System.Drawing.Color]::White)
+  $linePen = New-Object System.Drawing.Pen([System.Drawing.Color]::FromArgb(24, 33, 47), [Math]::Max(5, $Size * 0.055))
   $x = $Cx - $Size / 2
   $y = $Cy - $Size / 2
-  $Graphics.FillPie($red, $x, $y, $Size, $Size, 180, 180)
-  $Graphics.FillPie($white, $x, $y, $Size, $Size, 0, 180)
-  $Graphics.DrawEllipse($circlePen, $x, $y, $Size, $Size)
-  $Graphics.DrawLine($linePen, $x + $Size * 0.08, $Cy, $x + $Size * 0.92, $Cy)
-  $Graphics.FillEllipse($white, $Cx - $Size * 0.16, $Cy - $Size * 0.16, $Size * 0.32, $Size * 0.32)
-  $Graphics.DrawEllipse($circlePen, $Cx - $Size * 0.16, $Cy - $Size * 0.16, $Size * 0.32, $Size * 0.32)
+  $shield = New-Object System.Drawing.Drawing2D.GraphicsPath
+  $shieldPoints = [System.Drawing.PointF[]]@(
+    [System.Drawing.PointF]::new([single]$Cx, [single]$y),
+    [System.Drawing.PointF]::new([single]($x + $Size * 0.86), [single]($y + $Size * 0.18)),
+    [System.Drawing.PointF]::new([single]($x + $Size * 0.78), [single]($y + $Size * 0.66)),
+    [System.Drawing.PointF]::new([single]$Cx, [single]($y + $Size)),
+    [System.Drawing.PointF]::new([single]($x + $Size * 0.22), [single]($y + $Size * 0.66)),
+    [System.Drawing.PointF]::new([single]($x + $Size * 0.14), [single]($y + $Size * 0.18))
+  )
+  $shield.AddPolygon($shieldPoints)
+  $shield.CloseFigure()
+  $Graphics.FillPath($teal, $shield)
+  $Graphics.DrawPath($linePen, $shield)
+  $Graphics.FillEllipse($blue, $x + $Size * 0.22, $y + $Size * 0.22, $Size * 0.56, $Size * 0.56)
+  $Graphics.FillEllipse($gold, $x + $Size * 0.33, $y + $Size * 0.33, $Size * 0.34, $Size * 0.34)
   $font = New-Font ($Size * 0.28) ([System.Drawing.FontStyle]::Bold)
   $fmt = New-Object System.Drawing.StringFormat
   $fmt.Alignment = [System.Drawing.StringAlignment]::Center
   $fmt.LineAlignment = [System.Drawing.StringAlignment]::Center
   $rect = [System.Drawing.RectangleF]::new(
-    [single]($Cx - $Size * 0.5),
-    [single]($Cy - $Size * 0.52),
-    [single]$Size,
-    [single]($Size * 0.34)
+    [single]($Cx - $Size * 0.28),
+    [single]($Cy - $Size * 0.22),
+    [single]($Size * 0.56),
+    [single]($Size * 0.44)
   )
   $Graphics.DrawString("+", $font, $ink, $rect, $fmt)
-  $font.Dispose(); $fmt.Dispose(); $red.Dispose(); $white.Dispose(); $ink.Dispose(); $linePen.Dispose(); $circlePen.Dispose()
+  $shield.Dispose(); $font.Dispose(); $fmt.Dispose(); $teal.Dispose(); $blue.Dispose(); $gold.Dispose(); $white.Dispose(); $ink.Dispose(); $linePen.Dispose()
 }
 
 function Save-IconPng($Size, $Path, [bool]$Maskable = $false) {
@@ -66,10 +76,10 @@ function Save-IconPng($Size, $Path, [bool]$Maskable = $false) {
   )
   if ($Maskable) {
     $g.FillRectangle($bg, 0, 0, $Size, $Size)
-    Draw-PokeMathMark $g ($Size / 2) ($Size / 2) ($Size * 0.58)
+    Draw-BeastMathMark $g ($Size / 2) ($Size / 2) ($Size * 0.58)
   } else {
     Add-RoundedRect $g $bg 0 0 $Size $Size ($Size * 0.18)
-    Draw-PokeMathMark $g ($Size / 2) ($Size / 2) ($Size * 0.66)
+    Draw-BeastMathMark $g ($Size / 2) ($Size / 2) ($Size * 0.66)
   }
   $bmp.Save($Path, [System.Drawing.Imaging.ImageFormat]::Png)
   $bg.Dispose(); $g.Dispose(); $bmp.Dispose()
@@ -128,7 +138,7 @@ function Save-OgImage($Path) {
   $yellow = New-Object System.Drawing.SolidBrush([System.Drawing.Color]::FromArgb(246, 195, 68))
 
   Add-RoundedRect $g $white 54 54 1092 522 28
-  Draw-PokeMathMark $g 970 240 250
+  Draw-BeastMathMark $g 970 240 250
 
   $eyebrowFont = New-Font 30 ([System.Drawing.FontStyle]::Bold)
   $titleFont = New-Font 76 ([System.Drawing.FontStyle]::Bold)
@@ -136,10 +146,10 @@ function Save-OgImage($Path) {
   $bodyFont = New-Font 27 ([System.Drawing.FontStyle]::Regular)
   $smallFont = New-Font 24 ([System.Drawing.FontStyle]::Bold)
 
-  $g.DrawString("PokéAPI Math Battle", $eyebrowFont, $blue, 92, 102)
-  $g.DrawString("寶可夢數學道館", $titleFont, $ink, 88, 148)
+  $g.DrawString("Math Beast Battle", $eyebrowFont, $blue, 92, 102)
+  $g.DrawString("萌獸數學道館", $titleFont, $ink, 88, 148)
   $g.DrawString("ATG 即時對戰 × 加減乘除挑戰", $subFont, $ink, 94, 250)
-  $g.DrawString("選寶可夢、答數學題、放招式，擊敗道館關主！", $bodyFont, $muted, 96, 314)
+  $g.DrawString("選萌獸、答數學題、放招式，擊敗道館關主！", $bodyFont, $muted, 96, 314)
 
   Add-RoundedRect $g $blue 94 438 330 62 31
   $g.DrawString("立即開啟挑戰", $smallFont, [System.Drawing.Brushes]::White, 130, 456)
@@ -164,7 +174,7 @@ Save-IconPng 192 (Join-Path $Assets "icon-192-maskable.png") $true
 Save-IconPng 512 (Join-Path $Assets "icon-512-maskable.png") $true
 Write-Ico @((Join-Path $tmp "favicon-16.png"), (Join-Path $tmp "favicon-32.png"), (Join-Path $tmp "favicon-48.png")) (Join-Path $Root "favicon.ico")
 Remove-Item -Recurse -Force $tmp
-Save-OgImage (Join-Path $Assets "og-pokemon-math.png")
+Save-OgImage (Join-Path $Assets "og-math-beast-gym.png")
 
 $svg = @'
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
@@ -175,11 +185,9 @@ $svg = @'
     </linearGradient>
   </defs>
   <rect width="64" height="64" rx="13" fill="url(#bg)"/>
-  <circle cx="32" cy="32" r="21" fill="#fff" stroke="#18212f" stroke-width="4"/>
-  <path d="M11 32h42" stroke="#18212f" stroke-width="4" stroke-linecap="round"/>
-  <path d="M12 31a20 20 0 0 1 40 0z" fill="#e34f4f"/>
-  <circle cx="32" cy="32" r="8" fill="#fff" stroke="#18212f" stroke-width="4"/>
-  <path d="M32 13v10M27 18h10" stroke="#18212f" stroke-width="4" stroke-linecap="round"/>
+  <path d="M32 9 51 16 47 42 32 56 17 42 13 16Z" fill="#30c4aa" stroke="#18212f" stroke-width="4" stroke-linejoin="round"/>
+  <circle cx="32" cy="31" r="14" fill="#f6c344" stroke="#18212f" stroke-width="4"/>
+  <path d="M32 23v16M24 31h16" stroke="#18212f" stroke-width="5" stroke-linecap="round"/>
 </svg>
 '@
 [System.IO.File]::WriteAllText((Join-Path $Root "favicon.svg"), $svg, (New-Object System.Text.UTF8Encoding($false)))
