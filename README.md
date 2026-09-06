@@ -2,6 +2,8 @@
 
 🌐 **線上使用：[萌獸數學道館](https://cagoooo.github.io/Poke/)**
 
+> 📌 **建置版本：2026.07.02-3**（依據 `version.json`）
+
 本 repository 的用途與操作資訊整理如下。
 
 <!-- BEGIN:PROJECT_GUIDE -->
