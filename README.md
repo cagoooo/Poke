@@ -1,5 +1,7 @@
 # Poke
 
+🌐 **線上使用：[萌獸數學道館](https://cagoooo.github.io/Poke/)**
+
 本 repository 的用途與操作資訊整理如下。
 
 <!-- BEGIN:PROJECT_GUIDE -->
@@ -11,7 +13,7 @@
 - Repository：`cagoooo/Poke`
 - 可見性：公開
 - 主要技術：JavaScript
-- 線上入口：未在 GitHub repository metadata 設定
+- 線上入口：<https://cagoooo.github.io/Poke/>
 
 ### 可以怎麼應用
 
