@@ -1,10 +1,10 @@
-const BUILD_VERSION = "2026.07.02-3";
+const BUILD_VERSION = "2026.11.17-1";
 const CACHE_NAME = "math-beast-gym-" + BUILD_VERSION;
 const PRECACHE = [
   "./",
   "./index.html",
-  "./styles.css?v=2026.07.02-3",
-  "./script.js?v=2026.07.02-3",
+  "./styles.css?v=2026.11.17-1",
+  "./script.js?v=2026.11.17-1",
   "./favicon.ico",
   "./favicon.svg",
   "./apple-touch-icon.png",

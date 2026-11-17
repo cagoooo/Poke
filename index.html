@@ -35,7 +35,7 @@
       content="選萌獸、答數學題、放招式，透過 ATG 即時對戰擊敗道館關主！"
     />
     <meta name="twitter:image" content="https://cagoooo.github.io/Poke/assets/og-math-beast-gym.png?v=20260702-1" />
-    <link rel="stylesheet" href="styles.css?v=2026.07.02-3" />
+    <link rel="stylesheet" href="styles.css?v=2026.11.17-1" />
   </head>
   <body>
     <main class="app-shell">
@@ -114,6 +114,11 @@
           </label>
         </div>
         <div id="creatureGrid" class="creature-grid" aria-live="polite"></div>
+        <footer class="game-footer">
+          <p class="game-footer__name"><strong>萌獸數學道館</strong>：答對加減乘除題，帶萌獸挑戰道館關主</p>
+          <p class="site-credit">Made with <span class="site-credit__heart" aria-label="愛心">❤️</span> by
+            <a href="https://cagoooo.github.io/Akai/" target="_blank" rel="noopener noreferrer" title="阿凱老師教育科技創新專區" class="site-credit__author">阿凱老師</a><span class="footer-school"><span class="footer-dot" aria-hidden="true">・</span>桃園市龍潭區石門國民小學</span></p>
+        </footer>
       </section>
 
       <section id="battleScreen" class="screen battle-screen" aria-label="道館對戰">
@@ -214,11 +219,11 @@
       </section>
     </main>
 
-    <script src="script.js?v=2026.07.02-3"></script>
+    <script src="script.js?v=2026.11.17-1"></script>
     <script>
       (function () {
         if (!("serviceWorker" in navigator)) return;
-        var APP_VERSION = "2026.07.02-3";
+        var APP_VERSION = "2026.11.17-1";
         var reloaded = false;
 
         function showUpdateNotice(waitingWorker) {
